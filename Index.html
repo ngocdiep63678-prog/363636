@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Em huy cute</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --pink-bg-1: #ffd6e8;
+        --pink-bg-2: #ffb3d6;
+        --pink-bg-3: #ff85bf;
+        --pink-neon: #ff1e8a;
+        --pink-hot: #ff0077;
+        --pink-deep: #831843;
+        --pink-ink: #4a0e28;
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        width: 100%;
+        font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+        color: var(--pink-ink);
+        background:
+        radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.72) 0%, transparent 45%),
+        radial-gradient(circle at 85% 22%, rgba(255, 45, 149, 0.28) 0%, transparent 50%),
+        radial-gradient(circle at 50% 85%, rgba(255, 130, 195, 0.55) 0%, transparent 60%),
+        linear-gradient(155deg, var(--pink-bg-1) 0%, var(--pink-bg-2) 52%, var(--pink-bg-3) 100%);
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Ambient floating hearts & bokeh layer */
+      #ambient-layer {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        overflow: hidden;
+      }
+
+      .bokeh-orb {
+        position: absolute;
+        border-radius: 9999px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.75) 0%, rgba(255, 105, 180, 0.25) 60%, transparent 100%);
+        filter: blur(2px);
+        animation: bokehFloat linear infinite;
+      }
+
+      @keyframes bokehFloat {
+        0% {
+          transform: translate3d(0, 12vh, 0) scale(0.9);
+          opacity: 0;
+        }
+        15% {
+          opacity: 0.75;
+        }
+        85% {
+          opacity: 0.65;
+        }
+        100% {
+          transform: translate3d(var(--drift-x, 24px), -110vh, 0) scale(1.12);
+          opacity: 0;
+        }
+      }
+
+      .ambient-heart {
+        position: absolute;
+        bottom: -48px;
+        color: #ff1e8a;
+        text-shadow:
+        0 0 8px rgba(255, 30, 138, 0.85),
+        0 0 18px rgba(255, 105, 180, 0.65);
+        animation: riseHeart linear infinite;
+        will-change: transform, opacity;
+      }
+
+      @keyframes riseHeart {
+        0% {
+          transform: translate3d(0, 0, 0) rotate(var(--rot-start, -10deg)) scale(0.8);
+          opacity: 0;
+        }
+        12% {
+          opacity: var(--heart-op, 0.8);
+        }
+        50% {
+          transform: translate3d(var(--sway, 26px), -52vh, 0) rotate(var(--rot-mid, 12deg)) scale(1.05);
+        }
+        88% {
+          opacity: var(--heart-op, 0.8);
+        }
+        100% {
+          transform: translate3d(calc(var(--sway, 26px) * -0.5), -112vh, 0) rotate(var(--rot-end, -14deg)) scale(0.92);
+          opacity: 0;
+        }
+      }
+
+      /* Interactive flying hearts spawned on touch / click / hover */
+      #burst-layer {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 45;
+        overflow: hidden;
+      }
+
+      .burst-heart {
+        position: fixed;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        text-shadow:
+        0 0 10px rgba(255, 0, 119, 0.95),
+        0 0 22px rgba(255, 133, 191, 0.85);
+        animation: burstFly var(--dur, 900ms) cubic-bezier(0.16, 0.88, 0.32, 1) forwards;
+        will-change: transform, opacity;
+      }
+
+      @keyframes burstFly {
+        0% {
+          transform: translate(-50%, -50%) scale(0.35) rotate(0deg);
+          opacity: 1;
+        }
+        30% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, -120px))) scale(var(--sc, 1.25)) rotate(var(--rot, 28deg));
+          opacity: 0;
+        }
+      }
+
+      /* Shatter fragments layer */
+      #shatter-layer {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 60;
+        overflow: hidden;
+      }
+
+      .shatter-piece {
+        position: fixed;
+        pointer-events: none;
+        font-weight: 900;
+        color: #ffffff;
+        text-shadow:
+        0 0 10px rgba(255, 0, 119, 0.95),
+        0 0 24px rgba(255, 30, 138, 0.85);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(255, 140, 198, 0.55));
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        border-radius: 8px;
+        padding: 2px 7px;
+        box-shadow: 0 6px 18px rgba(255, 0, 119, 0.32);
+        animation: shatterFly var(--s-dur, 1050ms) cubic-bezier(0.18, 0.82, 0.25, 1) forwards;
+        will-change: transform, opacity;
+      }
+
+      @keyframes shatterFly {
+        0% {
+          transform: translate(0, 0) rotate(0deg) scale(1);
+          opacity: 1;
+        }
+        75% {
+          opacity: 0.95;
+        }
+        100% {
+          transform: translate(var(--sx, 0px), var(--sy, 220px)) rotate(var(--srot, 140deg)) scale(0.55);
+          opacity: 0;
+        }
+      }
+
+      /* Smooth upward-sliding reveal text ("chạy từ dưới lên trên theo khoảng nhất định") */
+      .slide-mask {
+        overflow: hidden;
+        display: block;
+      }
+
+      .slide-up-item {
+        display: inline-block;
+        transform: translateY(115%);
+        opacity: 0;
+        transition: transform 0.85s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.65s ease;
+        will-change: transform, opacity;
+      }
+
+      .slide-up-item.is-revealed {
+        transform: translateY(0%);
+        opacity: 1;
+      }
+
+      /* Glowing neon pink aesthetic glass card */
+      .neon-card {
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 2px solid rgba(255, 255, 255, 0.92);
+        box-shadow:
+        0 18px 45px rgba(255, 20, 135, 0.24),
+        0 0 28px rgba(255, 30, 138, 0.25),
+        inset 0 0 24px rgba(255, 255, 255, 0.6);
+      }
+
+      .neon-title {
+        color: #ff0f7b;
+        text-shadow:
+        0 0 12px rgba(255, 255, 255, 0.95),
+        0 0 22px rgba(255, 30, 138, 0.65),
+        0 3px 0 rgba(255, 255, 255, 0.85);
+      }
+
+      .neon-btn {
+        box-shadow:
+        0 8px 22px rgba(255, 20, 135, 0.32),
+        0 0 16px rgba(255, 65, 160, 0.45);
+        transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, filter 0.2s ease;
+      }
+
+      .neon-btn:hover {
+        transform: translateY(-2px) scale(1.03);
+        box-shadow:
+        0 12px 28px rgba(255, 0, 119, 0.45),
+        0 0 24px rgba(255, 80, 175, 0.75);
+      }
+
+      .neon-btn:active {
+        transform: translateY(1px) scale(0.97);
+      }
+
+      /* Custom bracket toast banner */
+      #bracket-toast {
+        position: fixed;
+        top: 22px;
+        left: 50%;
+        transform: translate(-50%, -24px);
+        z-index: 75;
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+        max-width: min(92vw, 520px);
+      }
+
+      #bracket-toast.show {
+        transform: translate(-50%, 0);
+        opacity: 1;
+      }
+
+      .screen-view {
+        transition: opacity 0.38s ease, transform 0.38s ease;
+      }
+
+      .screen-hidden {
+        display: none !important;
+      }
+
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center p-4 sm:p-6">
+    <!-- Background floating hearts & bokeh -->
+    <div id="ambient-layer" aria-hidden="true"></div>
+
+    <!-- Interactive flying hearts -->
+    <div id="burst-layer" aria-hidden="true"></div>
+
+    <!-- Shatter debris layer -->
+    <div id="shatter-layer" aria-hidden="true"></div>
+
+    <!-- Notification toast for [bạn chắc chứ 🤬?], [vậy là chị k thương e rồi😭], [quá đúng rồi trâm anh cte nhứt mò], etc. -->
+    <div id="bracket-toast" role="status" aria-live="polite" class="px-5 py-3 rounded-2xl bg-pink-600/95 text-white font-extrabold text-sm sm:text-base border-2 border-pink-200 shadow-2xl text-center"></div>
+
+    <!-- Main Stage -->
+    <main id="main-stage" class="relative z-10 w-full max-w-xl mx-auto">
+
+      <!-- 1. ENTRY SCREEN -->
+      <section id="screen-entry" class="screen-view neon-card rounded-3xl px-6 py-10 sm:px-10 sm:py-12 text-center">
+        <div class="mb-3 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-pink-100/90 border border-pink-300 text-pink-700 text-xs font-extrabold tracking-wide shadow-sm">
+          <span>💗</span>
+          <span>PINK NEON EDITION</span>
+          <span>💗</span>
+        </div>
+
+        <h1 class="neon-title text-4xl sm:text-6xl font-black tracking-tight leading-tight mt-2 mb-8">
+          <span class="slide-mask">
+            <span id="entry-title-slide" class="slide-up-item">Em huy cute</span>
+          </span>
+        </h1>
+
+        <div id="entry-action-wrap" class="opacity-0 translate-y-4 transition-all duration-500">
+          <button
+          id="btn-go-ready"
+          type="button"
+          class="neon-btn inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white font-extrabold text-base sm:text-lg border-2 border-pink-200 cursor-pointer"
+          >
+          <span>bấm vào đây để test</span>
+          <span>✨</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. READY / 4-BUTTON SCREEN -->
+    <section id="screen-ready" class="screen-view screen-hidden neon-card rounded-3xl px-6 py-8 sm:px-9 sm:py-10 text-center space-y-6">
+      <div class="space-y-2">
+        <p class="text-base sm:text-xl font-extrabold text-pink-800">
+          Chào mừng bạn đến với các câu hỏi của toy
+        </p>
+        <h2 class="neon-title text-2xl sm:text-4xl font-black tracking-wide">
+          BẠN SẴNG SÀNG CHỨ ?
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+        <button
+        id="btn-noooo"
+        type="button"
+        class="neon-btn py-3.5 px-5 rounded-2xl bg-gradient-to-r from-rose-400 to-pink-500 text-white font-extrabold text-base border-2 border-pink-100 cursor-pointer"
+        >
+        NOOOOO
+      </button>
+
+      <button
+      id="btn-okkkkkk"
+      type="button"
+      class="neon-btn py-3.5 px-5 rounded-2xl bg-gradient-to-r from-pink-500 via-fuchsia-500 to-rose-500 text-white font-extrabold text-base border-2 border-white cursor-pointer"
+      >
+      OKKKKKK
+    </button>
+
+    <button
+    id="btn-deo"
+    type="button"
+    class="neon-btn py-3.5 px-5 rounded-2xl bg-gradient-to-r from-pink-600 to-rose-600 text-white font-extrabold text-base border-2 border-pink-200 cursor-pointer"
+    >
+    ĐÉO
+  </button>
+
+  <button
+  id="btn-aiihoiii"
+  type="button"
+  class="neon-btn py-3.5 px-5 rounded-2xl bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-extrabold text-base border-2 border-pink-100 cursor-pointer"
+  >
+  aiihoiii
+</button>
+</div>
+</section>
+
+<!-- 3. POST-SHATTER GREETING SCREEN -->
+<section id="screen-greeting" class="screen-view screen-hidden neon-card rounded-3xl px-6 py-10 sm:px-9 sm:py-12 text-center space-y-7">
+  <h2 class="neon-title text-2xl sm:text-4xl font-black leading-snug">
+    <span class="slide-mask">
+      <span id="greeting-slide-text" class="slide-up-item">chào chị đã đến các câu hỏi cụa em hí hí😘</span>
+    </span>
+  </h2>
+
+  <div>
+    <button
+    id="btn-start-quiz"
+    type="button"
+    class="neon-btn inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-extrabold text-base sm:text-lg border-2 border-pink-100 cursor-pointer"
+    >
+    <span>bấm vào đây</span>
+    <span>💖</span>
+  </button>
+</div>
+</section>
+
+<!-- 4. PART 1: MULTIPLE CHOICE QUIZ (4 QUESTIONS) -->
+<section id="screen-quiz" class="screen-view screen-hidden neon-card rounded-3xl px-5 py-7 sm:px-8 sm:py-9 space-y-6">
+  <div class="flex items-center justify-between gap-2">
+    <span id="quiz-progress-badge" class="px-3.5 py-1 rounded-full bg-pink-500 text-white text-xs sm:text-sm font-extrabold shadow">
+      Câu 1 / 4
+    </span>
+    <span class="text-xs font-extrabold text-pink-700 bg-pink-100/90 px-3 py-1 rounded-full border border-pink-300">
+      Phần 1 • Trắc nghiệm
+    </span>
+  </div>
+
+  <h2 id="quiz-question-title" class="text-xl sm:text-2xl font-black text-pink-950 leading-snug"></h2>
+
+  <div id="quiz-options-container" class="grid grid-cols-1 gap-3"></div>
+</section>
+
+<!-- 5. PART 1 CONFIRMATION & EDIT PICKER SCREEN -->
+<section id="screen-quiz-confirm" class="screen-view screen-hidden neon-card rounded-3xl px-5 py-7 sm:px-8 sm:py-9 space-y-5 text-center">
+  <div class="space-y-1.5">
+    <h2 class="neon-title text-2xl sm:text-3xl font-black">
+      Bạn hàn thành chứ ?
+    </h2>
+    <p class="text-base sm:text-lg font-extrabold text-pink-900">
+      Có cần sửa gì không
+    </p>
+  </div>
+
+  <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
+    <button
+    id="btn-open-edit-list"
+    type="button"
+    class="neon-btn w-full sm:w-auto px-6 py-3 rounded-2xl bg-white hover:bg-pink-50 text-pink-700 font-extrabold text-sm sm:text-base border-2 border-pink-400 cursor-pointer"
+    >
+    Sửa lại câu hỏi
+  </button>
+
+  <button
+  id="btn-confirm-quiz-done"
+  type="button"
+  class="neon-btn w-full sm:w-auto px-7 py-3 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-extrabold text-sm sm:text-base border-2 border-pink-100 cursor-pointer"
+  >
+  Xác nhận sang Tự luận
+</button>
+</div>
+
+<!-- List of 4 questions to pick & edit -->
+<div id="edit-questions-panel" class="screen-hidden pt-3 border-t border-pink-200/80 space-y-3 text-left">
+  <p class="text-xs sm:text-sm font-extrabold text-pink-800">
+    Chọn câu muốn sửa (bấm vào câu để chọn lại đáp án, không báo đúng/sai):
+  </p>
+  <div id="edit-question-buttons" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+
+  <!-- Inline option re-selector for selected question -->
+  <div id="edit-option-editor" class="screen-hidden mt-3 p-4 rounded-2xl bg-white/85 border-2 border-pink-300 space-y-2.5">
+    <div class="flex items-center justify-between gap-2">
+      <p id="editing-question-label" class="text-sm font-black text-pink-950"></p>
+      <button
+      id="btn-close-option-editor"
+      type="button"
+      class="text-xs font-extrabold text-pink-600 hover:text-pink-800 underline cursor-pointer"
+      >
+      Đóng
+    </button>
+  </div>
+  <div id="editing-options-list" class="grid grid-cols-1 gap-2"></div>
+</div>
+</div>
+</section>
+
+<!-- 6. PART 2: ESSAY SCREEN ("Tự luận !!!") -->
+<section id="screen-essay" class="screen-view screen-hidden neon-card rounded-3xl px-5 py-7 sm:px-8 sm:py-9 space-y-6">
+  <div class="text-center">
+    <h2 class="neon-title text-3xl sm:text-4xl font-black">
+      <span class="slide-mask">
+        <span id="essay-title-slide" class="slide-up-item">Tự luận !!!</span>
+      </span>
+    </h2>
+  </div>
+
+  <form id="essay-form" class="space-y-5">
+    <div class="space-y-1.5">
+      <label for="essay-q1-input" class="block text-sm sm:text-base font-black text-pink-950">
+        Câu 1 : tôi có quan trọng với chị ko
+      </label>
+      <p class="text-xs sm:text-sm font-bold text-pink-700">
+        Có/không ? Vì sao ?
+      </p>
+      <textarea
+      id="essay-q1-input"
+      rows="3"
+      placeholder="Nhập câu trả lời câu 1..."
+      class="w-full rounded-2xl bg-white/90 border-2 border-pink-300 focus:border-pink-500 focus:outline-none px-4 py-3 text-sm sm:text-base font-semibold text-pink-950 shadow-inner"
+      ></textarea>
+  </div>
+
+  <div class="space-y-1.5">
+    <label for="essay-q2-input" class="block text-sm sm:text-base font-black text-pink-950">
+      Câu 2 : chị có thấy tôi phiền k ?
+    </label>
+    <textarea
+    id="essay-q2-input"
+    rows="3"
+    placeholder="Nhập câu trả lời câu 2..."
+    class="w-full rounded-2xl bg-white/90 border-2 border-pink-300 focus:border-pink-500 focus:outline-none px-4 py-3 text-sm sm:text-base font-semibold text-pink-950 shadow-inner"
+    ></textarea>
+</div>
+
+<p id="essay-error-msg" class="screen-hidden text-xs sm:text-sm font-extrabold text-rose-600 text-center"></p>
+
+<div class="pt-1 flex justify-center">
+  <button
+  id="btn-to-final-confirm"
+  type="submit"
+  class="neon-btn px-7 py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white font-extrabold text-sm sm:text-base border-2 border-pink-100 cursor-pointer"
+  >
+  Hoàn thành 2 câu tự luận
+</button>
+</div>
+</form>
+</section>
+
+<!-- 7. FINAL CONFIRMATION SCREEN ("Ok" and "aihoii") -->
+<section id="screen-final-confirm" class="screen-view screen-hidden neon-card rounded-3xl px-6 py-9 sm:px-9 sm:py-11 text-center space-y-6">
+  <div class="space-y-2">
+    <span class="inline-block px-3.5 py-1 rounded-full bg-pink-500 text-white text-xs font-extrabold">
+      Xác nhận lần cuối
+    </span>
+    <h2 class="neon-title text-2xl sm:text-4xl font-black">
+      Xác nhận gửi chứ ?
+    </h2>
+    <p class="text-sm sm:text-base font-bold text-pink-800">
+      Bấm nút bên dưới để đồng bộ câu trả lời lên hệ thống theo dõi.
+    </p>
+  </div>
+
+  <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-1">
+    <button
+    id="btn-final-ok"
+    type="button"
+    class="neon-btn w-full sm:w-44 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-black text-base sm:text-lg border-2 border-white cursor-pointer"
+    >
+    Ok
+  </button>
+
+  <button
+  id="btn-final-aihoii"
+  type="button"
+  class="neon-btn w-full sm:w-44 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-fuchsia-500 to-pink-600 text-white font-black text-base sm:text-lg border-2 border-pink-100 cursor-pointer"
+  >
+  aihoii
+</button>
+</div>
+</section>
+
+<!-- 8. COMPLETED SCREEN -->
+<section id="screen-completed" class="screen-view screen-hidden neon-card rounded-3xl px-6 py-9 sm:px-9 sm:py-11 text-center space-y-6">
+  <div class="rounded-2xl bg-gradient-to-r from-pink-600 via-rose-500 to-pink-600 text-white px-4 py-3.5 shadow-lg border-2 border-pink-200">
+    <p class="text-sm sm:text-lg font-black tracking-wide">
+      WEB ĐƯỢC CODE BỞI : Em huy cte.dev
+    </p>
+  </div>
+
+  <div class="space-y-1.5">
+    <h2 class="text-xl sm:text-2xl font-black text-pink-950">
+      Đã lưu &amp; đồng bộ hoàn tất
+    </h2>
+    <p id="completed-meta-text" class="text-xs sm:text-sm font-bold text-pink-700"></p>
+  </div>
+
+  <div class="rounded-2xl bg-white/85 border border-pink-200 p-4 text-left space-y-3 text-xs sm:text-sm">
+    <div>
+      <p class="font-black text-pink-800">Câu 1 tự luận (tôi có quan trọng với chị ko — Có/không ? Vì sao ?):</p>
+      <p id="done-essay-1" class="font-semibold text-pink-950 whitespace-pre-line break-words mt-0.5"></p>
+    </div>
+    <div>
+      <p class="font-black text-pink-800">Câu 2 tự luận (chị có thấy tôi phiền k ?):</p>
+      <p id="done-essay-2" class="font-semibold text-pink-950 whitespace-pre-line break-words mt-0.5"></p>
+    </div>
+    <p id="done-confirm-choice" class="font-extrabold text-pink-700 pt-1 border-t border-pink-100"></p>
+  </div>
+
+  <button
+  id="btn-restart-cycle"
+  type="button"
+  class="neon-btn px-6 py-3 rounded-full bg-white hover:bg-pink-50 text-pink-700 font-extrabold text-sm border-2 border-pink-400 cursor-pointer"
+  >
+  Làm lại từ đầu
+</button>
+</section>
+
+</main>
+
+<!-- 4-FINGER CONTROL PANEL MODAL (Tk: 36 / Mk: 36) -->
+<div id="admin-modal" class="screen-hidden fixed inset-0 z-80 bg-pink-950/65 backdrop-blur-sm flex items-center justify-center p-4" style="z-index: 85;" role="dialog" aria-modal="true" aria-labelledby="admin-modal-heading">
+  <div class="w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-3xl bg-pink-50 border-2 border-pink-300 shadow-2xl p-5 sm:p-7 text-pink-950">
+    <div class="flex items-start justify-between gap-3 pb-3 border-b border-pink-200">
+      <div>
+        <h2 id="admin-modal-heading" class="text-lg sm:text-2xl font-black text-pink-900">
+          Bảng Điều Khiển Check Trả Lời
+        </h2>
+        <p id="admin-store-mode" class="text-xs font-bold text-pink-700 mt-0.5"></p>
+      </div>
+      <button
+      id="btn-close-admin"
+      type="button"
+      class="w-9 h-9 rounded-full bg-pink-200 hover:bg-pink-300 text-pink-950 font-black flex items-center justify-center cursor-pointer"
+      aria-label="Đóng"
+      >
+      ✕
+    </button>
+  </div>
+
+  <!-- Login form: Tk = 36, Mk = 36 -->
+  <div id="admin-login-box" class="py-6 max-w-sm mx-auto">
+    <form id="admin-login-form" class="space-y-4">
+      <div>
+        <label for="admin-tk" class="block text-xs font-black uppercase text-pink-800 mb-1">Tk</label>
+        <input
+        id="admin-tk"
+        type="text"
+        autocomplete="username"
+        placeholder="Nhập Tk"
+        class="w-full rounded-xl bg-white border-2 border-pink-300 focus:border-pink-500 focus:outline-none px-3.5 py-2.5 text-sm font-bold"
+        />
+      </div>
+      <div>
+        <label for="admin-mk" class="block text-xs font-black uppercase text-pink-800 mb-1">Mk</label>
+        <input
+        id="admin-mk"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Nhập Mk"
+        class="w-full rounded-xl bg-white border-2 border-pink-300 focus:border-pink-500 focus:outline-none px-3.5 py-2.5 text-sm font-bold"
+        />
+      </div>
+      <p id="admin-login-err" class="screen-hidden text-xs font-extrabold text-rose-600 text-center">
+        Sai Tk hoặc Mk.
+      </p>
+      <button
+      type="submit"
+      class="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-black text-sm shadow cursor-pointer"
+      >
+      Đăng nhập
+    </button>
+  </form>
+</div>
+
+<!-- Dashboard list -->
+<div id="admin-data-box" class="screen-hidden pt-4 space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <span id="admin-count-label" class="text-xs sm:text-sm font-black text-pink-900"></span>
+    <div class="flex flex-wrap gap-2">
+      <button
+      id="btn-admin-refresh"
+      type="button"
+      class="px-3 py-1.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-xs font-extrabold cursor-pointer"
+      >
+      Tải lại
+    </button>
+    <button
+    id="btn-admin-export-json"
+    type="button"
+    class="px-3 py-1.5 rounded-xl bg-white hover:bg-pink-100 border border-pink-300 text-pink-800 text-xs font-extrabold cursor-pointer"
+    >
+    Xuất JSON
+  </button>
+  <button
+  id="btn-admin-wipe"
+  type="button"
+  class="px-3 py-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 border border-rose-300 text-rose-700 text-xs font-extrabold cursor-pointer"
+  >
+  Xóa dữ liệu
+</button>
+<button
+id="btn-admin-lock"
+type="button"
+class="px-3 py-1.5 rounded-xl bg-pink-900 hover:bg-pink-950 text-white text-xs font-extrabold cursor-pointer"
+>
+Khóa
+</button>
+</div>
+</div>
+
+<div id="admin-records-list" class="space-y-3 max-h-[54vh] overflow-y-auto pr-1"></div>
+</div>
+</div>
+</div>
+
+<script>
+  (function () {
+      'use strict';
+
+      // --- DOM REFERENCES ---
+      const ambientLayer = document.getElementById('ambient-layer');
+      const burstLayer = document.getElementById('burst-layer');
+      const shatterLayer = document.getElementById('shatter-layer');
+      const bracketToast = document.getElementById('bracket-toast');
+
+      const screenEntry = document.getElementById('screen-entry');
+      const entryTitleSlide = document.getElementById('entry-title-slide');
+      const entryActionWrap = document.getElementById('entry-action-wrap');
+      const btnGoReady = document.getElementById('btn-go-ready');
+
+      const screenReady = document.getElementById('screen-ready');
+      const btnNoooo = document.getElementById('btn-noooo');
+      const btnOkkkkkk = document.getElementById('btn-okkkkkk');
+      const btnDeo = document.getElementById('btn-deo');
+      const btnAiihoiii = document.getElementById('btn-aiihoiii');
+
+      const screenGreeting = document.getElementById('screen-greeting');
+      const greetingSlideText = document.getElementById('greeting-slide-text');
+      const btnStartQuiz = document.getElementById('btn-start-quiz');
+
+      const screenQuiz = document.getElementById('screen-quiz');
+      const quizProgressBadge = document.getElementById('quiz-progress-badge');
+      const quizQuestionTitle = document.getElementById('quiz-question-title');
+      const quizOptionsContainer = document.getElementById('quiz-options-container');
+
+      const screenQuizConfirm = document.getElementById('screen-quiz-confirm');
+      const btnOpenEditList = document.getElementById('btn-open-edit-list');
+      const btnConfirmQuizDone = document.getElementById('btn-confirm-quiz-done');
+      const editQuestionsPanel = document.getElementById('edit-questions-panel');
+      const editQuestionButtons = document.getElementById('edit-question-buttons');
+      const editOptionEditor = document.getElementById('edit-option-editor');
+      const editingQuestionLabel = document.getElementById('editing-question-label');
+      const btnCloseOptionEditor = document.getElementById('btn-close-option-editor');
+      const editingOptionsList = document.getElementById('editing-options-list');
+
+      const screenEssay = document.getElementById('screen-essay');
+      const essayTitleSlide = document.getElementById('essay-title-slide');
+      const essayForm = document.getElementById('essay-form');
+      const essayQ1Input = document.getElementById('essay-q1-input');
+      const essayQ2Input = document.getElementById('essay-q2-input');
+      const essayErrorMsg = document.getElementById('essay-error-msg');
+
+      const screenFinalConfirm = document.getElementById('screen-final-confirm');
+      const btnFinalOk = document.getElementById('btn-final-ok');
+      const btnFinalAihoii = document.getElementById('btn-final-aihoii');
+
+      const screenCompleted = document.getElementById('screen-completed');
+      const completedMetaText = document.getElementById('completed-meta-text');
+      const doneEssay1 = document.getElementById('done-essay-1');
+      const doneEssay2 = document.getElementById('done-essay-2');
+      const doneConfirmChoice = document.getElementById('done-confirm-choice');
+      const btnRestartCycle = document.getElementById('btn-restart-cycle');
+
+      const adminModal = document.getElementById('admin-modal');
+      const btnCloseAdmin = document.getElementById('btn-close-admin');
+      const adminStoreMode = document.getElementById('admin-store-mode');
+      const adminLoginBox = document.getElementById('admin-login-box');
+      const adminLoginForm = document.getElementById('admin-login-form');
+      const adminTk = document.getElementById('admin-tk');
+      const adminMk = document.getElementById('admin-mk');
+      const adminLoginErr = document.getElementById('admin-login-err');
+      const adminDataBox = document.getElementById('admin-data-box');
+      const adminCountLabel = document.getElementById('admin-count-label');
+      const adminRecordsList = document.getElementById('admin-records-list');
+      const btnAdminRefresh = document.getElementById('btn-admin-refresh');
+      const btnAdminExportJson = document.getElementById('btn-admin-export-json');
+      const btnAdminWipe = document.getElementById('btn-admin-wipe');
+      const btnAdminLock = document.getElementById('btn-admin-lock');
+
+      // --- QUIZ DATA (PART 1) ---
+      const QUIZ_QUESTIONS = [
+        {
+          id: 'q1',
+          number: 1,
+          title: 'Câu 1 : Ai cute nhứt',
+          options: [
+            { key: 'A', label: 'A. là gh' },
+            { key: 'B', label: 'B. Là tram anh' },
+            { key: 'C', label: 'C . Là gh' },
+            { key: 'D', label: 'D. Là gh' }
+          ]
+        },
+        {
+          id: 'q2',
+          number: 2,
+          title: 'Câu 2 : chị có phải less  ?',
+          options: [
+            { key: 'A', label: 'A.Yess' },
+            { key: 'B', label: 'B.Noo' },
+            { key: 'C', label: 'C. Đồng tính' },
+            { key: 'D', label: 'D.cute nhứt thé giới hé hé' }
+          ]
+        },
+        {
+          id: 'q3',
+          number: 3,
+          title: 'Câu 3: tôi cte hay dthw hoặc có dzai k ?',
+          options: [
+            { key: 'A', label: 'A. Em huy cte lém😍' },
+            { key: 'B', label: 'B. Em huy láo😏' },
+            { key: 'C', label: 'C.Dzai quó😘' },
+            { key: 'D', label: 'D.aiiihoiii' }
+          ]
+        },
+        {
+          id: 'q4',
+          number: 4,
+          title: 'Câu 4 : ĐI HỌC NHỚ AI 🤬',
+          options: [
+            { key: 'A', label: 'A. em huy cteeeeee❤️' },
+            { key: 'B', label: 'B. Thg tuất hiếu nhân😤' },
+            { key: 'C', label: 'C.nhớ tiền 💵 ' },
+            { key: 'D', label: 'D.aiihoiii' }
+          ]
+        }
+      ];
+
+      // --- STATE ---
+      let currentQuestionIndex = 0;
+      let isQuizTransitioning = false;
+      const selectedAnswers = {
+        q1: null,
+        q2: null,
+        q3: null,
+        q4: null
+      };
+      let activeEditingQuestionId = null;
+      let essayState = { q1: '', q2: '' };
+
+      // Shared storage across IPs/visitors
+      const LOCAL_STORE_KEY = 'em_huy_cute_shared_records_v1';
+      const SHARED_BUCKET_URL = 'https://kvdb.io/em_huy_cte_dev_36_store/submissions_v1';
+      const sessionId = 'SES-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+      let detectedIp = 'IP-Local';
+      let storeConnected = false;
+      let sharedRecords = [];
+      let adminUnlocked = false;
+      let toastTimer = null;
+
+      // --- TOAST & FLYING HEARTS ---
+      function showBracketToast(text) {
+        bracketToast.textContent = text;
+        bracketToast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            bracketToast.classList.remove('show');
+          }, 2100);
+      }
+
+      const HEART_GLYPHS = ['💗', '💖', '💕', '🩷', '💓', '💘'];
+
+      function spawnBurstHearts(x, y, total = 12) {
+        for (let i = 0; i < total; i++) {
+          const el = document.createElement('span');
+          el.className = 'burst-heart';
+          el.textContent = HEART_GLYPHS[Math.floor(Math.random() * HEART_GLYPHS.length)];
+          const angle = (Math.PI * 2 * i) / total + (Math.random() - 0.5) * 0.45;
+          const dist = 48 + Math.random() * 95;
+          const tx = Math.cos(angle) * dist;
+          const ty = Math.sin(angle) * dist - 36;
+          const rot = (Math.random() - 0.5) * 75;
+          const sc = 0.85 + Math.random() * 0.75;
+          const dur = 680 + Math.floor(Math.random() * 380);
+
+          el.style.left = `${x}px`;
+          el.style.top = `${y}px`;
+          el.style.fontSize = `${16 + Math.floor(Math.random() * 12)}px`;
+          el.style.setProperty('--tx', `${tx.toFixed(1)}px`);
+          el.style.setProperty('--ty', `${ty.toFixed(1)}px`);
+          el.style.setProperty('--rot', `${rot.toFixed(1)}deg`);
+          el.style.setProperty('--sc', sc.toFixed(2));
+          el.style.setProperty('--dur', `${dur}ms`);
+
+          burstLayer.appendChild(el);
+          setTimeout(() => el.remove(), dur + 60);
+        }
+      }
+
+      function spawnSingleHeart(x, y) {
+        const el = document.createElement('span');
+        el.className = 'burst-heart';
+        el.textContent = HEART_GLYPHS[Math.floor(Math.random() * HEART_GLYPHS.length)];
+        const tx = (Math.random() - 0.5) * 44;
+        const ty = -45 - Math.random() * 65;
+        const rot = (Math.random() - 0.5) * 40;
+        const dur = 640;
+
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        el.style.fontSize = `${15 + Math.floor(Math.random() * 8)}px`;
+        el.style.setProperty('--tx', `${tx.toFixed(1)}px`);
+        el.style.setProperty('--ty', `${ty.toFixed(1)}px`);
+        el.style.setProperty('--rot', `${rot.toFixed(1)}deg`);
+        el.style.setProperty('--sc', '1.15');
+        el.style.setProperty('--dur', `${dur}ms`);
+
+        burstLayer.appendChild(el);
+        setTimeout(() => el.remove(), dur + 50);
+      }
+
+      // Ambient floating hearts & bokeh lights
+      function initAmbientBackground() {
+        ambientLayer.innerHTML = '';
+
+        // Bokeh orbs
+        for (let i = 0; i < 12; i++) {
+          const orb = document.createElement('div');
+          orb.className = 'bokeh-orb';
+          const size = 46 + Math.floor(Math.random() * 84);
+          orb.style.width = `${size}px`;
+          orb.style.height = `${size}px`;
+          orb.style.left = `${Math.random() * 100}%`;
+          orb.style.bottom = `${-10 + Math.random() * 30}%`;
+          orb.style.setProperty('--drift-x', `${(Math.random() - 0.5) * 90}px`);
+          const dur = 11 + Math.random() * 10;
+          orb.style.animationDuration = `${dur}s`;
+          orb.style.animationDelay = `${-Math.random() * dur}s`;
+          ambientLayer.appendChild(orb);
+        }
+
+        // Floating cute pink hearts
+        for (let i = 0; i < 20; i++) {
+          const h = document.createElement('div');
+          h.className = 'ambient-heart';
+          h.textContent = HEART_GLYPHS[i % HEART_GLYPHS.length];
+          h.style.left = `${Math.random() * 98}%`;
+          h.style.fontSize = `${16 + Math.floor(Math.random() * 18)}px`;
+          h.style.setProperty('--sway', `${(Math.random() - 0.5) * 65}px`);
+          h.style.setProperty('--rot-start', `${-16 + Math.random() * 12}deg`);
+          h.style.setProperty('--rot-mid', `${8 + Math.random() * 18}deg`);
+          h.style.setProperty('--rot-end', `${-18 + Math.random() * 14}deg`);
+          h.style.setProperty('--heart-op', `${(0.55 + Math.random() * 0.35).toFixed(2)}`);
+          const dur = 8 + Math.random() * 7;
+          h.style.animationDuration = `${dur}s`;
+          h.style.animationDelay = `${-Math.random() * dur}s`;
+          ambientLayer.appendChild(h);
+        }
+      }
+
+      // Interactive hearts on pointer move, click, and touch
+      let lastMoveHeartTime = 0;
+      document.addEventListener('pointermove', (e) => {
+          const now = Date.now();
+          if (now - lastMoveHeartTime > 95) {
+            lastMoveHeartTime = now;
+            spawnSingleHeart(e.clientX, e.clientY);
+          }
+        }, { passive: true });
+
+      document.addEventListener('pointerdown', (e) => {
+          spawnBurstHearts(e.clientX, e.clientY, 7);
+        }, { passive: true });
+
+      // --- SCREEN & SLIDE ANIMATIONS ---
+      const ALL_SCREENS = [
+        screenEntry,
+        screenReady,
+        screenGreeting,
+        screenQuiz,
+        screenQuizConfirm,
+        screenEssay,
+        screenFinalConfirm,
+        screenCompleted
+      ];
+
+      function switchToScreen(targetEl) {
+        ALL_SCREENS.forEach((sec) => {
+            if (sec === targetEl) {
+              sec.classList.remove('screen-hidden');
+              sec.style.opacity = '0';
+              sec.style.transform = 'translateY(14px)';
+              void sec.offsetWidth;
+              sec.style.opacity = '1';
+              sec.style.transform = 'translateY(0)';
+            } else {
+              sec.classList.add('screen-hidden');
+            }
+        });
+      }
+
+      function animateUpwardSlide(el, onComplete) {
+        el.classList.remove('is-revealed');
+        el.style.transition = 'none';
+        el.style.transform = 'translateY(115%)';
+        el.style.opacity = '0';
+        void el.offsetWidth;
+        el.style.transition = '';
+        el.style.transform = '';
+        el.style.opacity = '';
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                el.classList.add('is-revealed');
+                if (typeof onComplete === 'function') {
+                  setTimeout(onComplete, 520);
+                }
+            });
+        });
+      }
+
+      // --- STEP 1: ENTRY ---
+      function runEntryReveal() {
+        entryActionWrap.classList.add('opacity-0', 'translate-y-4');
+        entryActionWrap.classList.remove('opacity-100', 'translate-y-0');
+        animateUpwardSlide(entryTitleSlide, () => {
+            entryActionWrap.classList.remove('opacity-0', 'translate-y-4');
+            entryActionWrap.classList.add('opacity-100', 'translate-y-0');
+        });
+      }
+
+      btnGoReady.addEventListener('click', (e) => {
+          spawnBurstHearts(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, 16);
+          switchToScreen(screenReady);
+      });
+
+      // --- STEP 2: READY SCREEN (4 BUTTONS) ---
+      btnNoooo.addEventListener('click', (e) => {
+          spawnBurstHearts(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, 10);
+          showBracketToast('[sao lại NOOOOO thế, bấm OKKKKKK đi chứ 😜]');
+      });
+
+      btnDeo.addEventListener('click', (e) => {
+          spawnBurstHearts(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, 12);
+          showBracketToast('[bạn chắc chứ 🤬?]');
+      });
+
+      btnAiihoiii.addEventListener('click', (e) => {
+          spawnBurstHearts(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, 12);
+          showBracketToast('[vậy là chị k thương e rồi😭]');
+      });
+
+      // --- STEP 3: SHATTER ON OKKKKKK -> GREETING ---
+      function triggerShatterFromElement(sourceEl, afterDone) {
+        shatterLayer.innerHTML = '';
+        const targets = sourceEl.querySelectorAll('h1, h2, p, button, span');
+        const pieces = [];
+
+        targets.forEach((node) => {
+            const rect = node.getBoundingClientRect();
+            if (rect.width < 6 || rect.height < 6) return;
+            const rawText = (node.textContent || '').trim();
+            if (!rawText) return;
+
+            const tokens = rawText.split(/\s+/).slice(0, 5);
+            tokens.forEach((tok, idx) => {
+                const px = rect.left + ((idx + 0.5) / Math.max(tokens.length, 1)) * rect.width;
+                const py = rect.top + rect.height * 0.5;
+                pieces.push({ text: tok, x: px, y: py });
+            });
+        });
+
+        if (pieces.length === 0) {
+          const r = sourceEl.getBoundingClientRect();
+          for (let i = 0; i < 18; i++) {
+            pieces.push({
+                text: HEART_GLYPHS[i % HEART_GLYPHS.length],
+                x: r.left + Math.random() * r.width,
+                y: r.top + Math.random() * r.height
+            });
+          }
+        }
+
+        const centerRect = sourceEl.getBoundingClientRect();
+        const cx = centerRect.left + centerRect.width / 2;
+        const cy = centerRect.top + centerRect.height / 2;
+        spawnBurstHearts(cx, cy, 26);
+
+        let maxDur = 950;
+        pieces.slice(0, 42).forEach((p, i) => {
+            const frag = document.createElement('div');
+            frag.className = 'shatter-piece';
+            frag.textContent = p.text;
+            const sx = (p.x - cx) * 1.45 + (Math.random() - 0.5) * 240;
+            const sy = (p.y - cy) * 0.9 + 150 + Math.random() * 210;
+            const srot = (Math.random() - 0.5) * 280;
+            const dur = 820 + Math.floor(Math.random() * 420);
+            if (dur > maxDur) maxDur = dur;
+
+            frag.style.left = `${p.x}px`;
+            frag.style.top = `${p.y}px`;
+            frag.style.fontSize = `${13 + Math.floor(Math.random() * 8)}px`;
+            frag.style.setProperty('--sx', `${sx.toFixed(1)}px`);
+            frag.style.setProperty('--sy', `${sy.toFixed(1)}px`);
+            frag.style.setProperty('--srot', `${srot.toFixed(1)}deg`);
+            frag.style.setProperty('--s-dur', `${dur}ms`);
+            frag.style.animationDelay = `${(i % 6) * 25}ms`;
+
+            shatterLayer.appendChild(frag);
+        });
+
+        sourceEl.style.opacity = '0';
+        sourceEl.style.transform = 'scale(0.92)';
+
+        setTimeout(() => {
+            shatterLayer.innerHTML = '';
+            sourceEl.style.opacity = '';
+            sourceEl.style.transform = '';
+            if (typeof afterDone === 'function') afterDone();
+          }, maxDur + 120);
+      }
+
+      btnOkkkkkk.addEventListener('click', (e) => {
+          spawnBurstHearts(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, 20);
+          triggerShatterFromElement(screenReady, () => {
+              switchToScreen(screenGreeting);
+              animateUpwardSlide(greetingSlideText);
+          });
+      });
+
+      btnStartQuiz.addEventListener('click', (e) => {
+          spawnBurstHearts(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, 16);
+          currentQuestionIndex = 0;
+          isQuizTransitioning = false;
+          renderQuizQuestion(currentQuestionIndex);
+          switchToScreen(screenQuiz);
+      });
+
+      // --- STEP 4: PART 1 QUIZ (4 QUESTIONS, NO ANSWERS REVEALED) ---
+      function renderQuizQuestion(idx) {
+        const q = QUIZ_QUESTIONS[idx];
+        if (!q) return;
+        isQuizTransitioning = false;
+        quizProgressBadge.textContent = `Câu ${q.number} / ${QUIZ_QUESTIONS.length}`;
+        quizQuestionTitle.textContent = q.title;
+        quizOptionsContainer.innerHTML = '';
+
+        q.options.forEach((opt) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'neon-btn w-full text-left px-5 py-3.5 rounded-2xl bg-white/90 hover:bg-pink-50 text-pink-950 font-extrabold text-sm sm:text-base border-2 border-pink-300 cursor-pointer';
+            btn.textContent = opt.label;
+
+            btn.addEventListener('click', (evt) => {
+                if (isQuizTransitioning) return;
+
+                isQuizTransitioning = true;
+                selectedAnswers[q.id] = opt.label;
+                btn.classList.remove('bg-white/90', 'text-pink-950', 'border-pink-300');
+                btn.classList.add('bg-gradient-to-r', 'from-pink-500', 'to-rose-500', 'text-white', 'border-pink-100');
+
+                spawnBurstHearts(evt.clientX || window.innerWidth / 2, evt.clientY || window.innerHeight / 2, 18);
+                showBracketToast('Đúng sai do (giahuydev) quyết định!');
+
+                setTimeout(() => {
+                    if (currentQuestionIndex + 1 < QUIZ_QUESTIONS.length) {
+                      currentQuestionIndex += 1;
+                      renderQuizQuestion(currentQuestionIndex);
+                    } else {
+                      openQuizConfirmation();
+                    }
+                  }, 680);
+            });
+
+            quizOptionsContainer.appendChild(btn);
+        });
+      }
+
+      // --- STEP 5: PART 1 CONFIRMATION & SILENT EDIT PICKER ---
+      function openQuizConfirmation() {
+        editQuestionsPanel.classList.add('screen-hidden');
+        editOptionEditor.classList.add('screen-hidden');
+        activeEditingQuestionId = null;
+        switchToScreen(screenQuizConfirm);
+      }
+
+      function renderEditQuestionList() {
+        editQuestionButtons.innerHTML = '';
+        QUIZ_QUESTIONS.forEach((q) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            const currentPick = selectedAnswers[q.id] || 'Chưa chọn';
+            btn.className = 'w-full text-left p-3.5 rounded-2xl bg-white/90 hover:bg-pink-100/80 border-2 border-pink-300 transition cursor-pointer';
+            btn.innerHTML = `
+            <div class="text-xs sm:text-sm font-black text-pink-950">${escapeHtml(q.title)}</div>
+            <div class="text-xs font-bold text-pink-700 mt-1">Đang chọn: ${escapeHtml(currentPick)}</div>
+            `;
+            btn.addEventListener('click', () => {
+                openOptionReSelector(q);
+            });
+            editQuestionButtons.appendChild(btn);
+        });
+      }
+
+      function openOptionReSelector(q) {
+        activeEditingQuestionId = q.id;
+        editingQuestionLabel.textContent = `Sửa ${q.title}`;
+        editingOptionsList.innerHTML = '';
+
+        q.options.forEach((opt) => {
+            const optBtn = document.createElement('button');
+            optBtn.type = 'button';
+            const isPicked = selectedAnswers[q.id] === opt.label;
+            optBtn.className = isPicked
+            ? 'w-full text-left px-4 py-2.5 rounded-xl bg-pink-500 text-white font-extrabold text-xs sm:text-sm border border-pink-200 cursor-pointer'
+            : 'w-full text-left px-4 py-2.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-950 font-bold text-xs sm:text-sm border border-pink-200 cursor-pointer';
+            optBtn.textContent = opt.label;
+
+            optBtn.addEventListener('click', (evt) => {
+                selectedAnswers[q.id] = opt.label;
+                spawnBurstHearts(evt.clientX || window.innerWidth / 2, evt.clientY || window.innerHeight / 2, 8);
+                showBracketToast('Đúng sai do (giahuydev) quyết định!');
+                renderEditQuestionList();
+                openOptionReSelector(q);
+            });
+
+            editingOptionsList.appendChild(optBtn);
+        });
+
+        editOptionEditor.classList.remove('screen-hidden');
+      }
+
+      btnOpenEditList.addEventListener('click', (e) => {
+          spawnBurstHearts(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, 10);
+          editQuestionsPanel.classList.toggle('screen-hidden');
+          if (!editQuestionsPanel.classList.contains('screen-hidden')) {
+            renderEditQuestionList();
+          }
+      });
+
+      btnCloseOptionEditor.addEventListener('click', () => {
+          editOptionEditor.classList.add('screen-hidden');
+          activeEditingQuestionId = null;
+      });
+
+      btnConfirmQuizDone.addEventListener('click', (e) => {
+          spawnBurstHearts(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, 16);
+          essayErrorMsg.classList.add('screen-hidden');
+          switchToScreen(screenEssay);
+          animateUpwardSlide(essayTitleSlide);
+      });
+
+      // --- STEP 6 & 7: PART 2 ESSAY + OK / AIHOII CONFIRMATION ---
+      essayForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const a1 = essayQ1Input.value.trim();
+          const a2 = essayQ2Input.value.trim();
+
+          if (!a1 || !a2) {
+            essayErrorMsg.textContent = 'Nhập đủ cả 2 câu tự luận rồi hẵng bấm hoàn thành nha.';
+            essayErrorMsg.classList.remove('screen-hidden');
+            return;
+          }
+
+          essayErrorMsg.classList.add('screen-hidden');
+          essayState = { q1: a1, q2: a2 };
+          spawnBurstHearts(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, 16);
+          switchToScreen(screenFinalConfirm);
+      });
+
+      async function handleFinalConfirmChoice(choiceLabel, clickEvent) {
+        spawnBurstHearts(
+          (clickEvent && clickEvent.clientX) || window.innerWidth / 2,
+          (clickEvent && clickEvent.clientY) || window.innerHeight / 2,
+          24
+        );
+
+        const now = new Date();
+        const timeStr = now.toLocaleString('vi-VN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+
+        const record = {
+          id: 'REC-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase(),
+          timestamp: timeStr,
+          createdAt: now.getTime(),
+          ip: detectedIp,
+          sessionId,
+          part1: {
+            q1: selectedAnswers.q1 || '',
+            q2: selectedAnswers.q2 || '',
+            q3: selectedAnswers.q3 || '',
+            q4: selectedAnswers.q4 || ''
+          },
+          essay1: essayState.q1,
+          essay2: essayState.q2,
+          finalConfirm: choiceLabel
+        };
+
+        await saveSubmissionToSharedStore(record);
+
+        completedMetaText.textContent = `Thời gian: ${timeStr} • IP/Nguồn: ${detectedIp} • Phiên: ${sessionId}`;
+        doneEssay1.textContent = essayState.q1;
+        doneEssay2.textContent = essayState.q2;
+        doneConfirmChoice.textContent = `Xác nhận chọn: ${choiceLabel}`;
+
+        switchToScreen(screenCompleted);
+        if (adminUnlocked) {
+          renderAdminRecords();
+        }
+      }
+
+      btnFinalOk.addEventListener('click', (e) => handleFinalConfirmChoice('Ok', e));
+      btnFinalAihoii.addEventListener('click', (e) => handleFinalConfirmChoice('aihoii', e));
+
+      btnRestartCycle.addEventListener('click', (e) => {
+          spawnBurstHearts(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, 14);
+          selectedAnswers.q1 = null;
+          selectedAnswers.q2 = null;
+          selectedAnswers.q3 = null;
+          selectedAnswers.q4 = null;
+          essayState = { q1: '', q2: '' };
+          essayQ1Input.value = '';
+          essayQ2Input.value = '';
+          switchToScreen(screenEntry);
+          runEntryReveal();
+      });
+
+      // --- SHARED STORAGE (CROSS-IP + LOCAL FALLBACK) ---
+      function readLocalRecords() {
+        try {
+          const raw = localStorage.getItem(LOCAL_STORE_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (_) {
+          return [];
+        }
+      }
+
+      function writeLocalRecords(list) {
+        try {
+          localStorage.setItem(LOCAL_STORE_KEY, JSON.stringify(list));
+        } catch (_) {
+          // Ignore storage quota errors
+        }
+      }
+
+      function mergeUniqueRecords(aList, bList) {
+        const map = new Map();
+        [...aList, ...bList].forEach((item) => {
+            if (item && item.id) {
+              map.set(item.id, item);
+            }
+        });
+        return Array.from(map.values()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      }
+
+      async function fetchIpAddress() {
+        try {
+          const res = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+          if (!res.ok) throw new Error('ip fail');
+          const data = await res.json();
+          if (data && data.ip) {
+            detectedIp = String(data.ip);
+          }
+        } catch (_) {
+          detectedIp = `IP-${sessionId.slice(-4)}`;
+        }
+      }
+
+      async function syncRecordsFromStore() {
+        const localData = readLocalRecords();
+        sharedRecords = mergeUniqueRecords(localData, sharedRecords);
+
+        try {
+          const res = await fetch(SHARED_BUCKET_URL, { cache: 'no-store' });
+          if (res.status === 404) {
+            storeConnected = true;
+            updateStoreStatusLabel();
+            return sharedRecords;
+          }
+          if (!res.ok) throw new Error('remote fetch fail');
+          const remoteData = await res.json();
+          if (Array.isArray(remoteData)) {
+            sharedRecords = mergeUniqueRecords(remoteData, localData);
+            writeLocalRecords(sharedRecords);
+            storeConnected = true;
+          }
+        } catch (_) {
+          storeConnected = false;
+        }
+
+        updateStoreStatusLabel();
+        return sharedRecords;
+      }
+
+      async function saveSubmissionToSharedStore(record) {
+        const localData = readLocalRecords();
+        sharedRecords = mergeUniqueRecords([record], localData);
+        writeLocalRecords(sharedRecords);
+
+        try {
+          const res = await fetch(SHARED_BUCKET_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(sharedRecords)
+          });
+          storeConnected = res.ok;
+        } catch (_) {
+          storeConnected = false;
+        }
+
+        updateStoreStatusLabel();
+      }
+
+      function updateStoreStatusLabel() {
+        adminStoreMode.textContent = storeConnected
+        ? 'Kho dữ liệu: Đồng bộ đa IP + bộ nhớ trình duyệt'
+        : 'Kho dữ liệu: Bộ nhớ trình duyệt (tự nối khi có mạng kho chung)';
+      }
+
+      // --- 4-FINGER GESTURE & ADMIN PANEL (Tk: 36 / Mk: 36) ---
+      let fourFingerLatch = false;
+
+      function openAdminModal() {
+        updateStoreStatusLabel();
+        adminModal.classList.remove('screen-hidden');
+        adminLoginErr.classList.add('screen-hidden');
+
+        if (adminUnlocked) {
+          adminLoginBox.classList.add('screen-hidden');
+          adminDataBox.classList.remove('screen-hidden');
+          syncRecordsFromStore().then(() => renderAdminRecords());
+        } else {
+          adminDataBox.classList.add('screen-hidden');
+          adminLoginBox.classList.remove('screen-hidden');
+          adminTk.value = '';
+          adminMk.value = '';
+          setTimeout(() => adminTk.focus(), 60);
+        }
+      }
+
+      function closeAdminModal() {
+        adminModal.classList.add('screen-hidden');
+      }
+
+      document.addEventListener('touchstart', (e) => {
+          if (e.touches && e.touches.length >= 4 && !fourFingerLatch) {
+            fourFingerLatch = true;
+            openAdminModal();
+          }
+        }, { passive: true });
+
+      document.addEventListener('touchend', (e) => {
+          if (!e.touches || e.touches.length < 4) {
+            fourFingerLatch = false;
+          }
+        }, { passive: true });
+
+      // Keyboard shortcut for desktop testing: Ctrl + Shift + H
+      document.addEventListener('keydown', (e) => {
+          if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'h') {
+            e.preventDefault();
+            openAdminModal();
+          }
+      });
+
+      btnCloseAdmin.addEventListener('click', closeAdminModal);
+      adminModal.addEventListener('click', (e) => {
+          if (e.target === adminModal) closeAdminModal();
+      });
+
+      adminLoginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const tkVal = adminTk.value.trim();
+          const mkVal = adminMk.value.trim();
+
+          if (tkVal !== '36' || mkVal !== '36') {
+            adminLoginErr.classList.remove('screen-hidden');
+            return;
+          }
+
+          adminUnlocked = true;
+          adminLoginErr.classList.add('screen-hidden');
+          adminLoginBox.classList.add('screen-hidden');
+          adminDataBox.classList.remove('screen-hidden');
+          await syncRecordsFromStore();
+          renderAdminRecords();
+      });
+
+      btnAdminLock.addEventListener('click', () => {
+          adminUnlocked = false;
+          adminDataBox.classList.add('screen-hidden');
+          adminLoginBox.classList.remove('screen-hidden');
+          adminTk.value = '';
+          adminMk.value = '';
+      });
+
+      btnAdminRefresh.addEventListener('click', async () => {
+          await syncRecordsFromStore();
+          renderAdminRecords();
+          showBracketToast('[đã tải lại dữ liệu]');
+      });
+
+      btnAdminExportJson.addEventListener('click', () => {
+          const blob = new Blob([JSON.stringify(sharedRecords, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `em-huy-cute-submissions-${Date.now()}.json`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+      });
+
+      btnAdminWipe.addEventListener('click', async () => {
+          sharedRecords = [];
+          writeLocalRecords([]);
+          try {
+            await fetch(SHARED_BUCKET_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify([])
+            });
+          } catch (_) {
+            // Ignore network error
+          }
+          renderAdminRecords();
+          showBracketToast('[đã xóa dữ liệu]');
+      });
+
+      function renderAdminRecords() {
+        adminCountLabel.textContent = `Tổng số lượt hoàn thành: ${sharedRecords.length}`;
+        adminRecordsList.innerHTML = '';
+
+        if (sharedRecords.length === 0) {
+          adminRecordsList.innerHTML = `
+          <div class="rounded-2xl bg-white border border-pink-200 p-5 text-center text-xs sm:text-sm font-bold text-pink-700">
+          Chưa có dữ liệu trả lời nào.
+          </div>
+          `;
+          return;
+        }
+
+        sharedRecords.forEach((rec, index) => {
+            const item = document.createElement('div');
+            item.className = 'rounded-2xl bg-white border border-pink-300 p-4 space-y-2 text-xs sm:text-sm shadow-sm';
+            item.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-1 font-black text-pink-900 border-b border-pink-100 pb-1.5">
+            <span>#${sharedRecords.length - index} • IP: ${escapeHtml(rec.ip || 'N/A')} • ${escapeHtml(rec.sessionId || '')}</span>
+            <span class="text-xs text-pink-600">${escapeHtml(rec.timestamp || '')}</span>
+            </div>
+            <div class="text-xs font-bold text-pink-800">
+            Trắc nghiệm: C1 [${escapeHtml(rec.part1?.q1 || '-')}] • C2 [${escapeHtml(rec.part1?.q2 || '-')}] • C3 [${escapeHtml(rec.part1?.q3 || '-')}] • C4 [${escapeHtml(rec.part1?.q4 || '-')}]
+            </div>
+            <div class="rounded-xl bg-pink-50 p-2.5">
+            <div class="font-black text-pink-900">Tự luận 1:</div>
+            <div class="font-semibold text-pink-950 whitespace-pre-line break-words">${escapeHtml(rec.essay1 || '')}</div>
+            </div>
+            <div class="rounded-xl bg-pink-50 p-2.5">
+            <div class="font-black text-pink-900">Tự luận 2:</div>
+            <div class="font-semibold text-pink-950 whitespace-pre-line break-words">${escapeHtml(rec.essay2 || '')}</div>
+            </div>
+            <div class="font-black text-pink-700">
+            Xác nhận cuối: ${escapeHtml(rec.finalConfirm || '')}
+            </div>
+            `;
+            adminRecordsList.appendChild(item);
+        });
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+          }
+
+          // --- INITIALIZE ---
+          window.addEventListener('DOMContentLoaded', () => {
+              initAmbientBackground();
+              fetchIpAddress();
+              syncRecordsFromStore();
+              runEntryReveal();
+          });
+      })();
+
+</script>
+</body>
+</html>
